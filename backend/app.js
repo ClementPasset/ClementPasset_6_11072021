@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const userRoutes = require('./routes/user');
+const saucesRoutes = require('./routes/sauces');
 
 const connectionString = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@so-pekocko.grpcp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 mongoose.connect(connectionString,
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth/', userRoutes);
+app.use('/api/sauces/', saucesRoutes);
 
 
 module.exports = app;
