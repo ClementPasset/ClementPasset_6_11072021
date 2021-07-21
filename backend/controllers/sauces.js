@@ -49,5 +49,45 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 exports.likeSauce = (req, res, next) => {
+    const like = req.body.like;
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => {
+            let { likes, dislikes, usersLiked, usersDisliked } = sauce;
 
+            if (like === 1) {
+                likes += 1;
+                usersLiked.push(req.body.userId);
+            } else if (like === -1) {
+                dislikes += 1;
+                usersDisliked.push(req.body.userId);
+            } else {
+                let position = usersLiked.findIndex(elt => elt === req.body.userId);
+                if (position !== -1) {
+                    usersLiked.splice(position, 1);
+                    likes -= 1;
+                }
+
+                position = usersDisliked.findIndex(elt => elt === req.body.userId);
+                if (position !== -1) {
+                    usersDisliked.splice(position, 1);
+                    dislikes -= 1;
+                }
+
+            }
+
+            const newSauce = {
+                ...sauce._doc,
+                likes,
+                dislikes,
+                usersLiked,
+                usersDisliked,
+            };
+
+            Sauce.updateOne({ _id: newSauce._id }, { ...newSauce, _id: newSauce._id })
+                .then(() => {
+                    res.status(201).json({ message: "Like modifié." });
+                })
+                .catch(error => res.status(500).json({ error }));
+        })
+        .catch(error => res.status(400).json({ error }));
 };
