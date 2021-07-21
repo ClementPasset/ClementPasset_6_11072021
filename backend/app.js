@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const userRoutes = require('./routes/user');
@@ -16,6 +17,8 @@ mongoose.connect(connectionString,
     .catch(() => console.log('La connexion à la base de données a échoué.'));
 
 const app = express();
+
+app.use('/images/', express.static(path.join(__dirname, 'images')));
 
 app.use(cors());
 app.use(express.json());
