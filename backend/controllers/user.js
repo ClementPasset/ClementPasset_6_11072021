@@ -2,23 +2,36 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto-js');
 const jwt = require('jsonwebtoken');
+const passwordValidator = require('password-validator');
 require('dotenv').config();
 
 exports.signup = (req, res, next) => {
-    let key = crypto.enc.Hex.parse(process.env.MAIL_ENCRYPTION_KEY);
-    let iv = crypto.enc.Hex.parse(process.env.MAIL_ENCRYPTION_IV);
 
-    bcrypt.hash(req.body.password, 10)
-        .then(hash => {
-            const user = new User({
-                email: crypto.AES.encrypt(req.body.email, key, { iv: iv }).toString(),
-                password: hash
-            });
-            user.save()
-                .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
-                .catch(error => res.status(500).json({ error }));
-        })
-        .catch(error => res.status(500).json({ error }));
+    let passwordSchema = new passwordValidator();
+    passwordSchema
+        .is().min(8)
+        .has().uppercase()
+        .has().lowercase()
+        .has().digits();
+
+    if (passwordSchema.validate(req.body.password)) {
+        let key = crypto.enc.Hex.parse(process.env.MAIL_ENCRYPTION_KEY);
+        let iv = crypto.enc.Hex.parse(process.env.MAIL_ENCRYPTION_IV);
+
+        bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+                const user = new User({
+                    email: crypto.AES.encrypt(req.body.email, key, { iv: iv }).toString(),
+                    password: hash
+                });
+                user.save()
+                    .then(() => res.status(201).json({ message: 'Utilisateur créé' }))
+                    .catch(error => res.status(500).json({ error }));
+            })
+            .catch(error => res.status(500).json({ error }));
+    } else {
+        res.status(401).json({ message: 'Mot de passe non valide.' });
+    }
 };
 
 exports.login = (req, res, next) => {
