@@ -53,21 +53,27 @@ exports.likeSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             let { likes, dislikes, usersLiked, usersDisliked } = sauce;
-
+            const userId = req.body.userId
             if (like === 1) {
-                likes += 1;
-                usersLiked.push(req.body.userId);
+                let found = usersLiked.findIndex(elt => elt === userId);
+                if (found === -1) {
+                    likes += 1;
+                    usersLiked.push(userId);
+                }
             } else if (like === -1) {
-                dislikes += 1;
-                usersDisliked.push(req.body.userId);
+                let found = usersDisliked.findIndex(elt => elt === userId);
+                if (found === -1) {
+                    dislikes += 1;
+                    usersDisliked.push(userId);
+                }
             } else {
-                let position = usersLiked.findIndex(elt => elt === req.body.userId);
+                let position = usersLiked.findIndex(elt => elt === userId);
                 if (position !== -1) {
                     usersLiked.splice(position, 1);
                     likes -= 1;
                 }
 
-                position = usersDisliked.findIndex(elt => elt === req.body.userId);
+                position = usersDisliked.findIndex(elt => elt === userId);
                 if (position !== -1) {
                     usersDisliked.splice(position, 1);
                     dislikes -= 1;
