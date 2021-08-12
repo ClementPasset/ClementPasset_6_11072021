@@ -8,8 +8,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/user');
 const saucesRoutes = require('./routes/sauces');
 
-const connectionString = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@so-pekocko.grpcp.mongodb.net/so-pekocko?retryWrites=true&w=majority`;
-mongoose.connect(connectionString,
+mongoose.connect(process.env.DB_CONNEXION_STRING,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
